@@ -11,7 +11,7 @@ import (
 
 type StorageService interface {
 	UploadImage(file io.Reader, bucket string, objectKey string) (string, error)
-	GetImage(imageID string, bucket string) ([]byte, error)
+	GetImage(bucket string, objectKey string) (io.Reader, error)
 	DeleteImage(imageID string, bucket string) error
 }
 
@@ -68,4 +68,25 @@ func (a *TripleSAdapter) UploadImage(file io.Reader, bucket string, objectKey st
 
 	fileURL := fmt.Sprintf("%s/%s/%s", a.baseURL, bucket, objectKey)
 	return fileURL, nil
+}
+
+func (a *TripleSAdapter) GetImage(bucket string, objectKey string) (io.Reader, error) {
+	url := fmt.Sprintf("%s/%s/%s", a.baseURL, bucket, objectKey)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("GET request creating error: %w", err)
+	}
+
+	resp, err := a.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request sending error: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("error receiving the object: %w", err)
+	}
+
+	return resp.Body, nil
 }
