@@ -1,8 +1,10 @@
 package post
 
 import (
+	"1337b04rd/internal/Infrastructure/storage"
 	"1337b04rd/internal/domain/models"
 	"1337b04rd/internal/domain/ports"
+	"bytes"
 	"encoding/json"
 	"io"
 	"mime/multipart"
@@ -44,8 +46,13 @@ func (h *PostHandler) CreatePostHandler(w http.ResponseWriter, r *http.Request) 
 			http.Error(w, "Error reading file: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
+		fileReader := bytes.NewReader(fileBytes)
 
-		uploadedURL, err := h.handleImageUpload(fileBytes)
+		storageAdapter := storage.NewTripleSAdapter("http://your-triple-s-service-url")
+		bucketName := "posts"
+		objectKey := "image.jpg"
+
+		uploadedURL, err := storageAdapter.UploadImage(fileReader, bucketName, objectKey)
 		if err != nil {
 			http.Error(w, "Failed to upload image: "+err.Error(), http.StatusInternalServerError)
 			return

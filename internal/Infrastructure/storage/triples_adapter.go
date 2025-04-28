@@ -12,7 +12,6 @@ import (
 type StorageService interface {
 	UploadImage(file io.Reader, bucket string, objectKey string) (string, error)
 	GetImage(bucket string, objectKey string) (io.Reader, error)
-	DeleteImage(imageID string, bucket string) error
 }
 
 type TripleSAdapter struct {
