@@ -9,6 +9,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -98,9 +99,23 @@ func (h *PostHandler) GetPostByIDHandler(w http.ResponseWriter, r *http.Request)
 
 	var imageData []byte
 	if post.Image != nil {
-		imageData, err = h.handleImageDownload(*post.Image)
+		parts := strings.SplitN(*post.Image, "/", 2)
+		if len(parts) != 2 {
+			http.Error(w, "Invalid image path format", http.StatusInternalServerError)
+			return
+		}
+		bucket := parts[0]
+		key := parts[1]
+
+		storageAdapter := storage.NewTripleSAdapter("http://your-triple-s-service-url")
+		reader, err := storageAdapter.GetImage(bucket, key)
 		if err != nil {
 			http.Error(w, "Failed to download image from storage", http.StatusInternalServerError)
+			return
+		}
+		imageData, err = io.ReadAll(reader)
+		if err != nil {
+			http.Error(w, "Failed to read image data", http.StatusInternalServerError)
 			return
 		}
 	}
@@ -125,15 +140,8 @@ func (h *PostHandler) GetPostByIDHandler(w http.ResponseWriter, r *http.Request)
 // and returns the URL/path of the stored image.
 //
 // TODO: Replace stub with actual implementation using AWS or MinIO SDK.
-func (h *PostHandler) handleImageUpload(imageData []byte) (string, error) {
-	return "bucket/object", nil
-}
 
 // handleImageDownload downloads the image from object storage given its URL/path
 // and returns the raw byte content of the image.
 //
 // TODO: Replace stub with actual implementation using AWS or MinIO SDK.
-func (h *PostHandler) handleImageDownload(imageURL string) ([]byte, error) {
-	imageBytes := []byte("image data from S3")
-	return imageBytes, nil
-}
