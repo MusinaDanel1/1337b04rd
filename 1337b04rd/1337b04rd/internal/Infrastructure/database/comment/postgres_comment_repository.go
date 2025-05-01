@@ -15,8 +15,8 @@ func NewPostgresCommentRepository(db *sql.DB) CommentRepository {
 
 func (r *PostgresCommentRepository) CreateComment(comment *models.Comment) error {
 	query := `
-		INSERT INTO comments (id, post_id, parent_id, content, avatar, name, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO comments (id, post_id, parent_id, content, avatar, name, image, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 	_, err := r.db.Exec(
 		query,
@@ -26,6 +26,7 @@ func (r *PostgresCommentRepository) CreateComment(comment *models.Comment) error
 		comment.Content,
 		comment.Avatar,
 		comment.Name,
+		comment.Image,
 		comment.CreatedAt,
 	)
 	if err != nil {
@@ -40,9 +41,9 @@ func (r *PostgresCommentRepository) CreateComment(comment *models.Comment) error
 	return err
 }
 
-func (r *PostgresCommentRepository) GetCommentByID(id string) (*models.Comment, error) {
+func (r *PostgresCommentRepository) GetCommentByID(id int) (*models.Comment, error) {
 	query := `
-		SELECT id, post_id, parent_id, content, avatar, name, created_at
+		SELECT id, post_id, parent_id, content, avatar, name, image, created_at
 		FROM comments WHERE id = $1
 	`
 	row := r.db.QueryRow(query, id)
@@ -55,6 +56,7 @@ func (r *PostgresCommentRepository) GetCommentByID(id string) (*models.Comment, 
 		&comment.Content,
 		&comment.Avatar,
 		&comment.Name,
+		&comment.Image,
 		&comment.CreatedAt,
 	)
 	if err == sql.ErrNoRows {
@@ -63,9 +65,9 @@ func (r *PostgresCommentRepository) GetCommentByID(id string) (*models.Comment, 
 	return comment, err
 }
 
-func (r *PostgresCommentRepository) GetCommentsByPostID(postID string) ([]*models.Comment, error) {
+func (r *PostgresCommentRepository) GetCommentsByPostID(postID int) ([]*models.Comment, error) {
 	query := `
-		SELECT id, post_id, parent_id, content, avatar, name, created_at
+		SELECT id, post_id, parent_id, content, avatar, name, image, created_at
 		FROM comments WHERE post_id = $1 ORDER BY created_at ASC
 	`
 	rows, err := r.db.Query(query, postID)
@@ -84,6 +86,7 @@ func (r *PostgresCommentRepository) GetCommentsByPostID(postID string) ([]*model
 			&c.Content,
 			&c.Avatar,
 			&c.Name,
+			&c.Image,
 			&c.CreatedAt,
 		)
 		if err != nil {
@@ -94,14 +97,14 @@ func (r *PostgresCommentRepository) GetCommentsByPostID(postID string) ([]*model
 	return comments, nil
 }
 
-func (r *PostgresCommentRepository) DeleteComment(id string) error {
+func (r *PostgresCommentRepository) DeleteComment(id int) error {
 	_, err := r.db.Exec(`DELETE FROM comments WHERE id = $1`, id)
 	return err
 }
 
-func (r *PostgresCommentRepository) GetReplies(commentID string) ([]*models.Comment, error) {
+func (r *PostgresCommentRepository) GetReplies(commentID int) ([]*models.Comment, error) {
 	query := `
-		SELECT id, post_id, parent_id, content, avatar, name, created_at
+		SELECT id, post_id, parent_id, content, avatar, name, image, created_at
 		FROM comments WHERE parent_id = $1 ORDER BY created_at ASC
 	`
 	rows, err := r.db.Query(query, commentID)
@@ -120,6 +123,7 @@ func (r *PostgresCommentRepository) GetReplies(commentID string) ([]*models.Comm
 			&c.Content,
 			&c.Avatar,
 			&c.Name,
+			&c.Image,
 			&c.CreatedAt,
 		)
 		if err != nil {
