@@ -6,6 +6,7 @@ import (
 	"1337b04rd/internal/domain/ports"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -56,7 +57,7 @@ func (h *CommentHandler) CreateCommentHandler(w http.ResponseWriter, r *http.Req
 	}
 
 	comment := &models.Comment{
-		PostID:    atoi(postID),
+		PostID:    postID,
 		Content:   content,
 		Avatar:    "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
 		Name:      "Rick Sanchez",
@@ -64,7 +65,7 @@ func (h *CommentHandler) CreateCommentHandler(w http.ResponseWriter, r *http.Req
 		CreatedAt: time.Now(),
 	}
 
-	if err := h.commentService.CreateComment(comment); err != nil {
+	if err := h.commentService.CreateCommentService(comment); err != nil {
 		http.Error(w, "Failed to create comment: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -80,7 +81,7 @@ func (h *CommentHandler) GetCommentsByPostIDHandler(w http.ResponseWriter, r *ht
 		return
 	}
 
-	comments, err := h.commentService.GetCommentsByPostID(postID)
+	comments, err := h.commentService.GetCommentsByPostIDService(postID)
 	if err != nil {
 		http.Error(w, "Failed to get comments: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -88,9 +89,19 @@ func (h *CommentHandler) GetCommentsByPostIDHandler(w http.ResponseWriter, r *ht
 
 	var result []models.CommentWithImage
 	for _, c := range comments {
+		id, err := strconv.Atoi(c.ID)
+		if err != nil {
+			fmt.Printf("Invalid postID")
+			return
+		}
+		postid, err := strconv.Atoi(c.PostID)
+		if err != nil {
+			fmt.Printf("Invalid postID")
+			return
+		}
 		item := models.CommentWithImage{
-			ID:        c.ID,
-			PostID:    c.PostID,
+			ID:        id,
+			PostID:    postid,
 			Content:   c.Content,
 			Avatar:    c.Avatar,
 			Name:      c.Name,
@@ -99,11 +110,11 @@ func (h *CommentHandler) GetCommentsByPostIDHandler(w http.ResponseWriter, r *ht
 		if c.Image != nil {
 			imgData, err := h.imageService.ProcessImage(*c.Image)
 			if err != nil {
-				log.Printf("Failed to process image for comment %d: %v", c.ID, err)
+				log.Printf("Failed to process image for comment %s: %v", c.ID, err)
 				http.Error(w, "Failed to process image", http.StatusInternalServerError)
 				return
 			}
-			item.ImageData = imgData
+			item.ImageData = *imgData
 		}
 		result = append(result, item)
 	}

@@ -14,13 +14,13 @@ type Post struct {
 }
 
 type PostWithImage struct {
-	ID        int       `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Avatar    string    `json:"avatar"`
-	Name      string    `json:"name"`
-	Image     *string   `json:"image,omitempty"`
-	ImageData *string   `json:"image_data,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	Comments []models.Comment `json:"comments,omitempty"`
+	ID        int        `json:"id"`
+	Title     string     `json:"title"`
+	Content   string     `json:"content"`
+	Avatar    string     `json:"avatar"`
+	Name      string     `json:"name"`
+	Image     *string    `json:"image,omitempty"`
+	ImageData *string    `json:"image_data,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
+	Comments  []*Comment `json:"comments,omitempty"`
 }

@@ -14,8 +14,8 @@ import (
 )
 
 type PostHandler struct {
-	postService  ports.PostService
-	imageService core.ImageService
+	postService    ports.PostService
+	imageService   core.ImageService
 	commentService ports.CommentService
 }
 
@@ -99,12 +99,11 @@ func (h *PostHandler) GetPostByIDHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	comments, err := h.CommentService.GetCommentsByPostID(postID){
-		if err != nil {
-			log.Printf("Error fetching comments for post %s: %v", postID, err)
-			http.Error(w, "Failed to fetch comments", http.StatusInternalServerError)
-		    return
-		}
+	comments, err := h.commentService.GetCommentsByPostIDService(postID)
+	if err != nil {
+		log.Printf("Error fetching comments for post %s: %v", postID, err)
+		http.Error(w, "Failed to fetch comments", http.StatusInternalServerError)
+		return
 	}
 
 	// Создаем структуру PostWithImage для отправки

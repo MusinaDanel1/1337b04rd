@@ -1,6 +1,7 @@
 package post
 
 import (
+	"1337b04rd/internal/ui/http/comment"
 	"1337b04rd/internal/ui/http/post"
 	"net/http"
 )
@@ -27,7 +28,7 @@ func RegisterPostRoutes(mux *http.ServeMux, handler *post.PostHandler) {
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		handler.GetActivePostsHandler(w, r)
+		handler.GetArchivedPostsHandler(w, r)
 	})
 
 	mux.HandleFunc("/posts/archived", func(w http.ResponseWriter, r *http.Request) {
@@ -38,9 +39,9 @@ func RegisterPostRoutes(mux *http.ServeMux, handler *post.PostHandler) {
 		handler.GetArchivedPostsHandler(w, r)
 	})
 
-	mux.HandleFunc("", func(w http.ResponseWriter, r *http.Request) {
-		if 
-	})
+	// mux.HandleFunc("", func(w http.ResponseWriter, r *http.Request) {
+	// 	if
+	// })
 
 	// mux.HandleFunc("/posts/delete/", func(w http.ResponseWriter, r *http.Request) {
 	// 	if r.Method != http.MethodDelete {
@@ -59,7 +60,7 @@ func RegisterPostRoutes(mux *http.ServeMux, handler *post.PostHandler) {
 	// })
 }
 
-func RegisterCommentRoutes (mux *http.ServeMux, handler *comment.CommentHandler) {
+func RegisterCommentRoutes(mux *http.ServeMux, handler *comment.CommentHandler) {
 	mux.HandleFunc("/post/submit-comment", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
