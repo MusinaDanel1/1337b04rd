@@ -38,6 +38,10 @@ func RegisterPostRoutes(mux *http.ServeMux, handler *post.PostHandler) {
 		handler.GetArchivedPostsHandler(w, r)
 	})
 
+	mux.HandleFunc("", func(w http.ResponseWriter, r *http.Request) {
+		if 
+	})
+
 	// mux.HandleFunc("/posts/delete/", func(w http.ResponseWriter, r *http.Request) {
 	// 	if r.Method != http.MethodDelete {
 	// 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
@@ -53,4 +57,14 @@ func RegisterPostRoutes(mux *http.ServeMux, handler *post.PostHandler) {
 	// 	}
 	// 	handler.UpdateLastCommentAtHandler(w, r)
 	// })
+}
+
+func RegisterCommentRoutes (mux *http.ServeMux, handler *comment.CommentHandler) {
+	mux.HandleFunc("/post/submit-comment", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		handler.CreateCommentHandler(w, r)
+	})
 }

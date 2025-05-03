@@ -113,8 +113,3 @@ func (h *CommentHandler) GetCommentsByPostIDHandler(w http.ResponseWriter, r *ht
 		http.Error(w, "Failed to encode comments", http.StatusInternalServerError)
 	}
 }
-
-func atoi(s string) int {
-	n, _ := strconv.Atoi(s)
-	return n
-}

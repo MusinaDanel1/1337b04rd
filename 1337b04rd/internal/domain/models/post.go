@@ -22,4 +22,5 @@ type PostWithImage struct {
 	Image     *string   `json:"image,omitempty"`
 	ImageData *string   `json:"image_data,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
+	Comments []models.Comment `json:"comments,omitempty"`
 }
